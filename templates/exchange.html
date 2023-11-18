@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+
+    <title>Exchange</title>
+</head>
+
+<body>
+
+
+    <h1 class="mb-4 text-center">Currency Exchange</h1>
+
+    <form class="col-sm-4" style="margin-left: 33%;" action="" method="post">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="crypto">Cryptocurrency:</label>
+                <select class="form-control" id="crypto" name="crypto">
+                    <option value="{{symbol}}">{{symbol}}</option>
+                    <!-- Add more cryptocurrency options as needed -->
+                </select>
+            </div>
+
+            <div class="form-group col-md-6">
+                <label for="quantity">Quantity:</label>
+                <input type="number" class="form-control" id="quantity" name="quantity" placeholder="Enter quantity"
+                    required value="1">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="fiat">Fiat Currency:</label>
+                <select class="form-control" id="fiat" name="fiat">
+                    <option value="{{fiat_currency}}">{{fiat_currency}}</option>
+                    <!-- Add more cryptocurrency options as needed -->
+                </select>
+            </div>
+
+            <div class="form-group col-md-6">
+                <label for="price">Price</label>
+                <input type="number" class="form-control" id="usd_price" name="usd_price" value="{{fiat_value}}"
+                    readonly>
+            </div>
+        </div>
+
+        <div>
+            <p>Total: <span id="total_crypto">{{symbol}}</span> * <span id="total_usd">{{fiat_value}}</span> =<span
+                    id="total_amount"></span></p>
+        </div> <button type="submit" class="btn btn-primary">Exchange</button>
+    </form>
+
+    <!-- Include Bootstrap JavaScript (optional) -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+        function dynamicChange(quantity, usdPrice, totalAmount) {
+            document.getElementById('total_crypto').innerText = quantity;
+            document.getElementById('total_usd').innerText = Math.round(usdPrice * 100) / 100;
+            document.getElementById('total_amount').innerText = Math.round(totalAmount * 100) / 100;
+
+            console.log(quantity, "*", usdPrice, "=", totalAmount);
+        }
+
+        document.getElementById('quantity').addEventListener('change', function () {
+            var quantity = parseInt(this.value); // Parse the quantity to an integer
+            var usdPrice = parseFloat("{{fiat_value}}"); // Parse the fiat_value to a float
+            var totalAmount = quantity * usdPrice;
+
+            dynamicChange(quantity, usdPrice, totalAmount);
+        });
+
+        // Initial calculation when the page loads
+        var initialQuantity = parseInt(document.getElementById("quantity").value);
+        var initialUsdPrice = parseFloat("{{fiat_value}}");
+        var initialTotalAmount = initialQuantity * initialUsdPrice;
+
+        dynamicChange(initialQuantity, initialUsdPrice, initialTotalAmount);
+    </script>
+</body>
+
+</html>
