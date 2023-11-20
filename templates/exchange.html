@@ -15,15 +15,25 @@
 
 
     <h1 class="mb-4 text-center">Currency Exchange</h1>
+    {% for i in data %}
+    {{i.crypto_currency.symbol}}
+    {% endfor %}
 
     <form class="col-sm-4" style="margin-left: 33%;" action="" method="post">
         {% csrf_token %}
 
         <div class="form-row">
+
+
             <div class="form-group col-md-6">
                 <label for="crypto">Cryptocurrency:</label>
                 <select class="form-control" id="crypto" name="crypto">
-                    <option value="{{symbol}}">{{symbol}}</option>
+                    {% for i in crypto_data %}
+                    {% if i.symbol == selected_value.crypto.symbol %}
+                    <option value="{{i.symbol}}" selected>{{i.symbol}}</option>
+                    {% endif %}
+                    <option value="{{i.symbol}}">{{i.symbol}}</option>
+                    {% endfor %}
                     <!-- Add more cryptocurrency options as needed -->
                 </select>
             </div>
@@ -39,14 +49,18 @@
             <div class="form-group col-md-6">
                 <label for="fiat">Fiat Currency:</label>
                 <select class="form-control" id="fiat" name="fiat">
-                    <option value="{{fiat_currency}}">{{fiat_currency}}</option>
+                    {% for i in fiat_data %}
+                    <option value="{{i.symbol}}">{{i.symbol}}</option>
+                    {% endfor %}
+
                     <!-- Add more cryptocurrency options as needed -->
                 </select>
             </div>
 
+
             <div class="form-group col-md-6">
                 <label for="price">Price</label>
-                <input type="number" class="form-control" id="usd_price" name="usd_price" value="{{fiat_value}}"
+                <input type="number" class="form-control" id="fiat_price" name="fiat_price" value="{{fiat_value}}"
                     readonly>
             </div>
         </div>
@@ -63,28 +77,73 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
     <script>
-        function dynamicChange(quantity, usdPrice, totalAmount) {
+        function dynamicChange(quantity, price, totalAmount) {
             document.getElementById('total_crypto').innerText = quantity;
-            document.getElementById('total_usd').innerText = Math.round(usdPrice * 100) / 100;
+            document.getElementById('total_usd').innerText = Math.round(price * 100) / 100;
             document.getElementById('total_amount').innerText = Math.round(totalAmount * 100) / 100;
 
-            console.log(quantity, "*", usdPrice, "=", totalAmount);
+            console.log(quantity, "*", price, "=", totalAmount);
         }
 
         document.getElementById('quantity').addEventListener('change', function () {
-            var quantity = parseInt(this.value); // Parse the quantity to an integer
-            var usdPrice = parseFloat("{{fiat_value}}"); // Parse the fiat_value to a float
-            var totalAmount = quantity * usdPrice;
 
-            dynamicChange(quantity, usdPrice, totalAmount);
+            var crypto = document.getElementById("crypto");
+            var fiat = document.getElementById("fiat");
+
+            console.log(crypto.value, "=======", fiat.value)
+            getExchangeData(crypto_symbol = crypto.value, fiat_symbol = fiat.value)
+
         });
 
-        // Initial calculation when the page loads
-        var initialQuantity = parseInt(document.getElementById("quantity").value);
-        var initialUsdPrice = parseFloat("{{fiat_value}}");
-        var initialTotalAmount = initialQuantity * initialUsdPrice;
+        document.getElementById('crypto').addEventListener('change', function () {
 
-        dynamicChange(initialQuantity, initialUsdPrice, initialTotalAmount);
+            var crypto = document.getElementById("crypto");
+            var fiat = document.getElementById("fiat");
+
+            console.log(crypto.value, "=======", fiat.value)
+            getExchangeData(crypto_symbol = crypto.value, fiat_symbol = fiat.value)
+
+        });
+
+        document.getElementById('fiat').addEventListener('change', function () {
+
+            var crypto = document.getElementById("crypto");
+            var fiat = document.getElementById("fiat");
+
+            console.log(crypto.value, "=======", fiat.value)
+            getExchangeData(crypto_symbol = crypto.value, fiat_symbol = fiat.value)
+
+        });
+
+        function getExchangeData(crypto_symbol = null, fiat_symbol = null) {
+
+            if (crypto_symbol === null || fiat_symbol === null) {
+                alert(`Crypto Symbol or Fiat Symbol is Null.`)
+            }
+            else {
+                // alert(`${crypto_symbol}, ${fiat_symbol}, ${typeof (crypto_symbol)}`)
+                url = `/get-price/${crypto_symbol}/${fiat_symbol}/`
+                fetch(url, {
+                    method: "GET",
+                }).then(data => (data.json())).then(res => setDefaultData(res))
+                    .catch(error => console.log("ERROR: ", error))
+            }
+        }
+        var selectedCrypto = '{{selected_crypto.symbol}}'
+        getExchangeData(crypto_symbol = selectedCrypto, fiat_symbol = "USD")
+
+
+        function setDefaultData(res) {
+
+            document.getElementById("fiat_price").value = res.price
+            // Initial calculation when the page loads
+            var initialQuantity = parseInt(document.getElementById("quantity").value);
+            var initialprice = parseFloat(res.price);
+            var initialTotalAmount = initialQuantity * initialprice;
+
+            dynamicChange(initialQuantity, initialprice, initialTotalAmount);
+        }
+
     </script>
 </body>
 

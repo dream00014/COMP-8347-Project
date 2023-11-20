@@ -1,3 +1,4 @@
-*.sqlite3
 **/*__pycache__
-*.idea
+**/*db.sqlite3
+**/*migrations
+**/*venv

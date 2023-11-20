@@ -1,122 +1,138 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from .models import *
 from django.views import View
+from django.forms.models import model_to_dict
 import requests
-import json
-from .forms import RankingFilterForm
-
+from .forms import RankingFilterForm, LoginForm, SignUpForm
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.hashers import make_password
 # Create your views here.
 
 
-# class CryptoView(View):
-#     def get(self, request, page_number=None, filter_by=None):
-#         # from Tradingbeez.settings import ALPHA_VOLTAGE_API_KEY
-#         # key = ALPHA_VOLTAGE_API_KEY
-#         # # replace the "demo" apikey below with your own key from https://www.alphavantage.co/support/#api-key
-#         # url = f'https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=BTC&to_currency=USD&apikey={key}'
-#         # r = requests.get(url)
-#         # data = r.json()
+class PortfolioView(LoginRequiredMixin,View):
+    login_url = "/login"
 
-#         # # print(json.dumps(data))
-
-#         # data = json.dumps(data)
-#         # context = {}
-#         # context['data'] = data
-#         # # print(context)
-
-
-#         form = RankingFilterForm()
-#         api_url = "https://api.coincap.io/v2"
-#         endpoint = "assets"
-#         params = {}
-#         page_number = 1
-
-
-#         if filter_by is not None:
-#             limit_per_page = 10
-#             if filter_by == "top":
-#                 params = {
-#                     "limit": limit_per_page,
-#                     "offset": (page_number - 1) * limit_per_page,
-#                 }
-#             elif filter_by == "worst":
-#                 params = {
-#                     "limit": limit_per_page,
-#                     "offset": (11 - 1) * limit_per_page,
-#                 }
-
-
-#         response = requests.get(f"{api_url}/{endpoint}", params=params)
-#         data = response.json()
-
-#         print(data)
-
-#         context = {}
-#         context["data"] = data
-#         context["page_number"] = page_number
-#         context["form"]= form
-#         return render(request, "crypto.html", context=context)
-
-
-class CryptoView(View):
-    def get(self, request, filter_by=None):
+    def get(self, request):
+        print(request.user)
+        filter_by = request.GET.get("ranking_filter")
         form = RankingFilterForm(request.GET)
 
-        api_url = "https://api.coincap.io/v2"
-        endpoint = "assets"
-        params = {}
-        page_number = 1
+        if filter_by == "top":
+            data = CurrencyExchangeInfo.objects.filter(
+                fiat_currency__symbol="USD"
+            ).order_by("price")[:10]
+        elif filter_by == "worst":
+            data = CurrencyExchangeInfo.objects.filter(
+                fiat_currency__symbol="USD"
+            ).order_by("-price")[:10]
+        else:
+            data = CurrencyExchangeInfo.objects.filter(fiat_currency__symbol="USD")
 
-        # print(form,"===========>>>>>>>>>")
+        context = {"form": form, "data": data}
 
-        if filter_by is not None:
-            limit_per_page = 10
-            if filter_by == "top":
-                params = {
-                    "limit": limit_per_page,
-                    "offset": (page_number - 1) * limit_per_page,
-                }
-            elif filter_by == "worst":
-                params = {
-                    "limit": limit_per_page,
-                    "offset": (100 - limit_per_page),
-                }
+        return render(request, "portfolio.html", context=context)
 
-        response = requests.get(f"{api_url}/{endpoint}", params=params)
-        data = response.json()
 
-        print("\n\n", data, "\n\n")
+class ExchangeView(LoginRequiredMixin,View):
+    login_url = "/login"
+
+    def get(self, request, selected_crypto=None):
+        if not selected_crypto:
+            error = {"error": "selected_crypto or selected_fiat is None"}
+            return JsonResponse(error, safe=False)
+
+        crypto_data = CryptoCurrency.objects.all()
+        fiat_data = FiatCurrency.objects.all()
+        print(selected_crypto, "=========>>>>>>")
+        selected_crypto = CryptoCurrency.objects.filter(symbol=selected_crypto).first()
+        print(selected_crypto, "-----------")
         context = {
-            "data": data,
-            "page_number": page_number,
-            "form": form,
-        }
-        return render(request, "crypto.html", context=context)
-
-
-class PaginnationView(View):
-    def get(self, request):
-        data = request.get("data")
-
-
-class ExchangeView(View):
-    def get(self, request, symbol, fiat_currency, fiat_value):
-        print(symbol, "========SYMBOL")
-        print(fiat_currency, "========SYMBOL")
-        print(fiat_value, "========SYMBOL")
-
-        context = {
-            "symbol": symbol,
-            "fiat_currency": fiat_currency,
-            "fiat_value": fiat_value
+            "crypto_data": crypto_data,
+            "fiat_data": fiat_data,
+            "selected_crypto": selected_crypto,
+            "selected_value": {"crypto": selected_crypto},
         }
         return render(request, "exchange.html", context=context)
 
 
-class FloatUrlParameterConverter:
-    regex = "[0-9]+\.?[0-9]+"
+class GetExchangePrice(LoginRequiredMixin,View):
+    login_url = "/login"
 
-    def to_python(self, value):
-        return float(value)
+    def get(self, request, crypto_symbol, fiat_symbol):
+        data = CurrencyExchangeInfo.objects.filter(
+            crypto_currency__symbol=crypto_symbol, fiat_currency__symbol=fiat_symbol
+        ).first()
 
-    def to_url(self, value):
-        return str(value)
+        obj_dict = model_to_dict(data)
+
+        return JsonResponse(obj_dict, safe=False)
+
+
+class LoginView(View):
+    def get(self, request):
+        form = LoginForm(request.GET)
+
+        context = {"form": form}
+        return render(request, "login.html", context=context)
+
+    def post(self, request):
+        form = LoginForm(request.POST)
+
+        if form.is_valid():
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password")
+
+            print(username, password)
+            user = authenticate(username=username, password=password)
+
+            print("USER===========", user)
+            if user:
+                login(request, user)
+                return redirect("portfolio_view")
+            else:
+                # Add the form to the context if login fails
+                context = {"form": form}
+                return render(request, "login.html", context=context)
+
+        # If the form is not valid, render the form with errors
+        context = {"form": form}
+        return render(request, "login.html", context=context)
+
+
+class SignUpView(View):
+    def get(self, request):
+        form = SignUpForm(request.GET)
+
+        context = {"form": form}
+        return render(request, "signup.html", context=context)
+
+    def post(self, request):
+        form = SignUpForm(request.POST)
+
+        if form.is_valid():
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password")
+
+            hash_password = make_password(password)
+            print(username, hash_password)
+            user = User(username=username, password=hash_password)
+            user.save()
+            return redirect("portfolio_view")
+
+        # If the form is not valid, render the form with errors
+        context = {"form": form}
+        return render(request, "signup.html", context=context)
+
+
+class LogoutView(LoginRequiredMixin, View):
+    login_url = "/login"
+
+    def get(self, request):
+        print(request.user, "========1")
+        logout(request)
+        print(request.user, "=======2")
+        return redirect("login_view")
