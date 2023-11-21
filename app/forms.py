@@ -2,6 +2,7 @@ from typing import Any
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from .models import CryptoCurrency
 
 
 class RankingFilterForm(forms.Form):
@@ -80,3 +81,7 @@ class SignUpForm(forms.Form):
             raise ValidationError("Confirm Password not matched with Password.")
 
         return cleaned_data
+
+class CryptoSelectionForm(forms.Form):
+    crypto_choices = [(crypto.id, crypto.name) for crypto in CryptoCurrency.objects.all()]
+    crypto = forms.ChoiceField(choices=crypto_choices, widget=forms.Select(attrs={'class': 'form-select'}))

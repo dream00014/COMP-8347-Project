@@ -10,7 +10,9 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.hashers import make_password
-# Create your views here.
+from .forms import CryptoSelectionForm
+from .models import CryptoCurrency
+
 
 
 class PortfolioView(LoginRequiredMixin,View):
@@ -136,3 +138,19 @@ class LogoutView(LoginRequiredMixin, View):
         logout(request)
         print(request.user, "=======2")
         return redirect("login_view")
+
+
+class CryptoSelectionView(View):
+    def get(self, request):
+        form = CryptoSelectionForm()
+        return render(request, 'crypto_selection.html', {'form': form})
+
+    def post(self, request):
+        form = CryptoSelectionForm(request.POST)
+        if form.is_valid():
+            crypto_id = form.cleaned_data['crypto']
+            selected_crypto = CryptoCurrency.objects.get(id=crypto_id)
+            return render(request, 'crypto_details.html', {'form': form, 'selected_crypto': selected_crypto})
+        return render(request, 'crypto_selection.html', {'form': form})
+
+
