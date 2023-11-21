@@ -1,43 +1,54 @@
-from django.core.exceptions import ValidationError
 from django import forms
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 import os
 
+# Custom validator for file upload
 def validate_file_extension(value):
-    ext = os.path.splitext(value.name)[1]  # Extracts the file extension
+    ext = os.path.splitext(value.name)[1]
     valid_extensions = ['.jpg', '.png', '.pdf']
     if not ext.lower() in valid_extensions:
         raise ValidationError('Unsupported file extension. Allowed types are .jpg, .png, .pdf')
 
 class RankingFilterForm(forms.Form):
-    # ... existing RankingFilterForm code ...
+    RANKING_CHOICES = [
+        ("all", "All Rankings"),
+        ("top", "Top Rankings"),
+        ("worst", "Worst Rankings"),
+    ]
+
+    ranking_filter = forms.ChoiceField(
+        choices=RANKING_CHOICES,
+        label="Filter by Ranking",
+        widget=forms.Select(attrs={"class": "form-control"}),
+        initial="all",
+    )
 
 class LoginForm(forms.Form):
-    # ... existing LoginForm code ...
+    username = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "Username"}),
+    )
+    password = forms.CharField(
+        max_length=100,
+        widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "Password"}),
+    )
 
 class SignUpForm(forms.Form):
     username = forms.CharField(
         max_length=100,
-        widget=forms.TextInput(
-            attrs={"class": "form-control", "placeholder": "Username"}
-        ),
+        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "Username"}),
     )
     email = forms.EmailField(
-        widget=forms.EmailInput(
-            attrs={"class": "form-control", "placeholder": "Email"}
-        )
+        widget=forms.EmailInput(attrs={"class": "form-control", "placeholder": "Email"}),
     )
     password = forms.CharField(
         max_length=100,
-        widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "Password"}
-        ),
+        widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "Password"}),
     )
     confirm_password = forms.CharField(
         max_length=100,
-        widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "Confirm Password"}
-        ),
+        widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "Confirm Password"}),
     )
     id_document = forms.FileField(
         required=True,
