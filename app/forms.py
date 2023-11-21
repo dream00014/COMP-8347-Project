@@ -1,4 +1,3 @@
-from typing import Any
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -41,13 +40,17 @@ class SignUpForm(forms.Form):
             attrs={"class": "form-control", "placeholder": "Username"}
         ),
     )
+    email = forms.EmailField(
+        widget=forms.EmailInput(
+            attrs={"class": "form-control", "placeholder": "Email"}
+        )
+    )
     password = forms.CharField(
         max_length=100,
         widget=forms.PasswordInput(
             attrs={"class": "form-control", "placeholder": "Password"}
         ),
     )
-
     confirm_password = forms.CharField(
         max_length=100,
         widget=forms.PasswordInput(
@@ -55,28 +58,24 @@ class SignUpForm(forms.Form):
         ),
     )
 
+    def clean_username(self):
+        username = self.cleaned_data.get("username")
+        if User.objects.filter(username=username).exists():
+            raise ValidationError("Username already taken.")
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        if User.objects.filter(email=email).exists():
+            raise ValidationError("Email already in use.")
+        return email
+
     def clean(self):
         cleaned_data = super().clean()
-
-        username = cleaned_data.get("username")
         password = cleaned_data.get("password")
         confirm_password = cleaned_data.get("confirm_password")
 
-        if not len(username) > 0:
-            print("\n\n ERROR: Username not be blank.\n\n")
-            raise ValidationError("Username not be blank.")
-
-        if not len(password) > 0:
-            print("\n\n ERROR: Password not be blank.\n\n")
-
-            raise ValidationError("Password not be blank.")
-
-        if not len(confirm_password) > 0:
-            print("\n\n ERROR: Confirm Password not be blank.\n\n")
-            raise ValidationError("Confirm Password not be blank.")
-
-        if password != confirm_password:
-            print("\n\n ERROR: Confirm Password not matched with Password.\n\n")
-            raise ValidationError("Confirm Password not matched with Password.")
+        if password and confirm_password and password != confirm_password:
+            self.add_error("confirm_password", "Confirm Password does not match Password.")
 
         return cleaned_data
