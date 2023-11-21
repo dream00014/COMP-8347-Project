@@ -1,11 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-<<<<<<< HEAD
 from .models import CryptoCurrency
-=======
 import os
->>>>>>> cd57e6082bca4c11fd7eb589f28cde21e933434a
 
 # Custom validator for file upload
 def validate_file_extension(value):
