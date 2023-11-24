@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from .views import HomeView
 from .views import PrivacyPolicyView
+from .views import TermsOfServiceView
 
 
 urlpatterns = [
@@ -24,5 +25,6 @@ urlpatterns = [
     path('payment/', views.PaymentView.as_view(), name='crypto_payment'),
     path('checkout/', views.CheckoutSuccess.as_view(), name='crypto_payment_checkout'),
     path('privacy-policy/', PrivacyPolicyView.as_view(), name='privacy_policy'),
+    path('terms-of-service/', TermsOfServiceView.as_view(), name='terms_of_service'),
 
 ]
