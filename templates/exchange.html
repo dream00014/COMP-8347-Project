@@ -19,7 +19,7 @@
     {{i.crypto_currency.symbol}}
     {% endfor %}
 
-    <form class="col-sm-4" style="margin-left: 33%;" action="" method="post">
+    <form class="col-sm-4" style="margin-left: 33%;" action="/payment/" method="post">
         {% csrf_token %}
 
         <div class="form-row">
@@ -68,6 +68,7 @@
         <div>
             <p>Total: <span id="total_crypto">{{symbol}}</span> * <span id="total_usd">{{fiat_value}}</span> =<span
                     id="total_amount"></span></p>
+            <input type="hidden" name="total_price" id="total_price" >
         </div> <button type="submit" class="btn btn-primary">Exchange</button>
     </form>
 
@@ -81,6 +82,7 @@
             document.getElementById('total_crypto').innerText = quantity;
             document.getElementById('total_usd').innerText = Math.round(price * 100) / 100;
             document.getElementById('total_amount').innerText = Math.round(totalAmount * 100) / 100;
+            document.getElementById('total_price').value = Math.round(totalAmount * 100) / 100;
 
             console.log(quantity, "*", price, "=", totalAmount);
         }
@@ -137,7 +139,7 @@
 
             document.getElementById("fiat_price").value = res.price
             // Initial calculation when the page loads
-            var initialQuantity = parseInt(document.getElementById("quantity").value);
+            var initialQuantity = parseFloat(document.getElementById("quantity").value);
             var initialprice = parseFloat(res.price);
             var initialTotalAmount = initialQuantity * initialprice;
 
@@ -145,6 +147,11 @@
         }
 
     </script>
+
+
+
+
+
 </body>
 
 </html>

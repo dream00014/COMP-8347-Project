@@ -12,6 +12,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.hashers import make_password
 from .forms import CryptoSelectionForm
 from .models import CryptoCurrency
+import stripe
+from django.conf import settings
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.forms import UserCreationForm
+from django.urls import reverse_lazy
 
 
 
@@ -105,29 +111,6 @@ class LoginView(View):
         return render(request, "login.html", context=context)
 
 
-class SignUpView(View):
-    def get(self, request):
-        form = SignUpForm(request.GET)
-
-        context = {"form": form}
-        return render(request, "signup.html", context=context)
-
-    def post(self, request):
-        form = SignUpForm(request.POST)
-
-        if form.is_valid():
-            username = form.cleaned_data.get("username")
-            password = form.cleaned_data.get("password")
-
-            hash_password = make_password(password)
-            print(username, hash_password)
-            user = User(username=username, password=hash_password)
-            user.save()
-            return redirect("portfolio_view")
-
-        # If the form is not valid, render the form with errors
-        context = {"form": form}
-        return render(request, "signup.html", context=context)
 
 
 class LogoutView(LoginRequiredMixin, View):
@@ -138,6 +121,10 @@ class LogoutView(LoginRequiredMixin, View):
         logout(request)
         print(request.user, "=======2")
         return redirect("login_view")
+
+
+def logoutView():
+    return {'abc':'bbc'}
 
 
 class CryptoSelectionView(View):
@@ -153,4 +140,38 @@ class CryptoSelectionView(View):
             return render(request, 'crypto_details.html', {'form': form, 'selected_crypto': selected_crypto})
         return render(request, 'crypto_selection.html', {'form': form})
 
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
+class PaymentView(View):
+    def post(self, request):
+        intent = stripe.PaymentIntent.create(
+            amount= int(float(request.POST['total_price'])),
+            currency='usd',
+            automatic_payment_methods={
+                'enabled': True,
+            },
+        )
+
+        #store data into temp transactions table
+        print(intent['client_secret'])
+
+        return render(request, 'payment.html', {'form': intent['client_secret'], 'crypto_type' : request.POST['crypto'], 'crypto_qty' : request.POST['quantity']})
+
+class CheckoutSuccess(View):
+    def get(self, request):
+        return render(request, 'checkout.html')
+
+
+
+class SignUpView(View):
+    def get(self, request):
+        form = SignUpForm()
+        return render(request, "signup.html", {"form": form})
+
+    def post(self, request):
+        form = SignUpForm(request.POST, request.FILES)
+        if form.is_valid():
+            user = form.save()
+            return redirect("login_view")
+        else:
+            return render(request, "signup.html", {"form": form})
