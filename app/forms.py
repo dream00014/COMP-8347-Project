@@ -89,13 +89,17 @@ class CryptoSelectionForm(forms.Form):
 
 
 class SignUpForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)
-    confirm_password = forms.CharField(widget=forms.PasswordInput)
-    id_document = forms.ImageField(validators=[validate_file_extension], required=False)
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    id_document = forms.ImageField(widget=forms.FileInput(attrs={'class': 'form-control'}), validators=[validate_file_extension], required=False)
 
     class Meta:
         model = User
         fields = ('username', 'email', 'password', 'confirm_password')
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+        }
 
     def clean(self):
         cleaned_data = super().clean()
