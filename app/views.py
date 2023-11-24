@@ -179,5 +179,6 @@ class SignUpView(View):
 class HomeView(TemplateView):
     template_name = 'home.html'
 
-
+class PrivacyPolicyView(TemplateView):
+    template_name = 'privacy_policy.html'
 

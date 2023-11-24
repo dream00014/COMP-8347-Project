@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from .views import HomeView
+from .views import PrivacyPolicyView
 
 
 urlpatterns = [
@@ -22,5 +23,6 @@ urlpatterns = [
     path('crypto/', views.CryptoSelectionView.as_view(), name='crypto_selection'),
     path('payment/', views.PaymentView.as_view(), name='crypto_payment'),
     path('checkout/', views.CheckoutSuccess.as_view(), name='crypto_payment_checkout'),
+    path('privacy-policy/', PrivacyPolicyView.as_view(), name='privacy_policy'),
 
 ]
