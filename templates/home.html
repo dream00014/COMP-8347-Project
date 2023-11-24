@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Trading Beez{% endblock %}
+
+{% block content %}
+<div class="landing-page">
+    <!-- Hero Section -->
+    <div class="hero-section text-center">
+        <h1>Welcome to Trading Beez</h1>
+        <p>Your reliable crypto-to-real currency conversion platform.</p>
+        <a href="{% url 'login_view' %}" class="btn btn-primary mt-3">Start Trading</a>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 feature">
+                    <h3>Fast Transactions</h3>
+                    <p>Convert your cryptocurrency quickly and efficiently with our streamlined process.</p>
+                </div>
+                <div class="col-md-4 feature">
+                    <h3>Secure Platform</h3>
+                    <p>Your security is our priority. Trade with confidence on our encrypted platform.</p>
+                </div>
+                <div class="col-md-4 feature">
+                    <h3>Real-Time Rates</h3>
+                    <p>Get the most up-to-date and competitive rates for your currency conversion.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonial Section -->
+    <div class="testimonial-section">
+        <div class="container">
+            <h2 class="text-center">What Our Users Say</h2>
+            <div class="row">
+                <div class="col-md-4 testimonial">
+                    <p>"Trading Beez made it super easy for me to exchange my bitcoins into dollars. Fast and secure!"</p>
+                    <p>- Alex Smith</p>
+                </div>
+                <div class="col-md-4 testimonial">
+                    <p>"I always get the best rates here. The real-time updates are a game-changer."</p>
+                    <p>- Emily Johnson</p>
+                </div>
+                <div class="col-md-4 testimonial">
+                    <p>"As a beginner in crypto, I found Trading Beez to be very user-friendly and trustworthy."</p>
+                    <p>- Mark Davis</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action Section -->
+    <div class="cta-section text-center">
+        <h2>Ready to Start Trading?</h2>
+        <p>Join us today and experience the best in crypto-to-fiat transactions.</p>
+        <a href="{% url 'signup_view' %}" class="btn btn-success mt-3">Sign Up Now</a>
+    </div>
+</div>
+
+<!-- Footer Section -->
+<footer class="footer-section text-center">
+    <p>© 2023 Trading Beez | <a href="{% url 'login_view' %}">Privacy Policy</a> | <a href="{% url 'login_view' %}">Terms of Service</a></p>
+</footer>
+{% endblock %}

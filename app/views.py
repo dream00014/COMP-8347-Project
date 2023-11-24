@@ -18,7 +18,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
-
+from django.views.generic import TemplateView
 
 
 class PortfolioView(LoginRequiredMixin,View):
@@ -175,3 +175,9 @@ class SignUpView(View):
             return redirect("login_view")
         else:
             return render(request, "signup.html", {"form": form})
+
+class HomeView(TemplateView):
+    template_name = 'home.html'
+
+
+

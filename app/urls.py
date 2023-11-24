@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import HomeView
 
 
 urlpatterns = [
@@ -14,6 +15,7 @@ urlpatterns = [
         views.GetExchangePrice.as_view(),
         name="get_exchange_price_view",
     ),
+    path("home/", HomeView.as_view(), name='home'),
     path("login/", views.LoginView.as_view(), name="login_view"),
     path("signup/", views.SignUpView.as_view(), name="signup_view"),
     path("logout/", views.LogoutView.as_view(), name="logout_view"),
