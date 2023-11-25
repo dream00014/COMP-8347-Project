@@ -10,12 +10,11 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.hashers import make_password
-from .forms import CryptoSelectionForm
 from .models import CryptoCurrency
+import json
 
 
-
-class PortfolioView(LoginRequiredMixin,View):
+class PortfolioView(LoginRequiredMixin, View):
     login_url = "/login"
 
     def get(self, request):
@@ -34,17 +33,26 @@ class PortfolioView(LoginRequiredMixin,View):
         else:
             data = CurrencyExchangeInfo.objects.filter(fiat_currency__symbol="USD")
 
+        # print(data)
+        # if data:
+        #     print("YES")
+        # else:
+        #     print("NO")
         context = {"form": form, "data": data}
 
         return render(request, "portfolio.html", context=context)
 
 
-class ExchangeView(LoginRequiredMixin,View):
+class ExchangeView(LoginRequiredMixin, View):
     login_url = "/login"
 
-    def get(self, request, selected_crypto=None):
+    def get(self, request, selected_crypto=None, action=None):
         if not selected_crypto:
             error = {"error": "selected_crypto or selected_fiat is None"}
+            return JsonResponse(error, safe=False)
+
+        if not action:
+            error = {"error": "action[BUY or SELL] is None"}
             return JsonResponse(error, safe=False)
 
         crypto_data = CryptoCurrency.objects.all()
@@ -57,11 +65,13 @@ class ExchangeView(LoginRequiredMixin,View):
             "fiat_data": fiat_data,
             "selected_crypto": selected_crypto,
             "selected_value": {"crypto": selected_crypto},
+            "action": action,
         }
+
         return render(request, "exchange.html", context=context)
 
 
-class GetExchangePrice(LoginRequiredMixin,View):
+class GetExchangePrice(LoginRequiredMixin, View):
     login_url = "/login"
 
     def get(self, request, crypto_symbol, fiat_symbol):
@@ -140,17 +150,52 @@ class LogoutView(LoginRequiredMixin, View):
         return redirect("login_view")
 
 
-class CryptoSelectionView(View):
+class TransactionView(LoginRequiredMixin, View):
+    login_url = "/login"
+
     def get(self, request):
-        form = CryptoSelectionForm()
-        return render(request, 'crypto_selection.html', {'form': form})
+        data = request.GET.get("data", "")
+        unescaped_string = data.encode().decode("unicode_escape")
+        data_dict = json.loads(unescaped_string)
+        print(data_dict, "=============", type(data_dict))
 
-    def post(self, request):
-        form = CryptoSelectionForm(request.POST)
-        if form.is_valid():
-            crypto_id = form.cleaned_data['crypto']
-            selected_crypto = CryptoCurrency.objects.get(id=crypto_id)
-            return render(request, 'crypto_details.html', {'form': form, 'selected_crypto': selected_crypto})
-        return render(request, 'crypto_selection.html', {'form': form})
+        try:
+            try:
+                user_obj = User.objects.get(username=data_dict["user"])
+            except Exception as e:
+                data = {"msg": "Transaction Failed", "error": e}
+                return JsonResponse(data)
+            # Parse the JSON string into a dictionary
+            # data_dict = json.loads(data)
+
+            # Create a new transaction instance
+            transaction = TransactionHistory(
+                user=user_obj,
+                transaction_type=data_dict["transaction_type"],
+                transaction_status=data_dict["transaction_status"],
+                from_currency=data_dict["from_currency"],
+                from_currency_qty=data_dict["from_currency_qty"],
+                to_currency=data_dict["to_currency"],
+                to_currency_amount=data_dict["to_currency_amount"],
+                total_amount=data_dict["total_amount"],
+            )
+
+            # Save the transaction to the database
+            transaction.save()
+
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON: {e}")
+
+        return redirect("/")
+        # return render(request, "portfolio.html")
 
 
+class TransactionHistoryView(LoginRequiredMixin, View):
+    login_url = "/login"
+
+    def get(self, request):
+        transaction_histories = TransactionHistory.objects.filter(
+            user__pk=request.user.pk
+        ).all()
+        context = {"transaction_histories": transaction_histories}
+        return render(request, "transaction_history.html", context=context)

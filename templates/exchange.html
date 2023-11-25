@@ -68,7 +68,15 @@
         <div>
             <p>Total: <span id="total_crypto">{{symbol}}</span> * <span id="total_usd">{{fiat_value}}</span> =<span
                     id="total_amount"></span></p>
-        </div> <button type="submit" class="btn btn-primary">Exchange</button>
+        </div>
+        <div class="text-center">
+
+            {% if action == "BUY" %}
+            <button id="buyBtn" type="submit" class="btn btn-success w-25">BUY</button>
+            {% else %}
+            <button id="sellBtn" type="submit" class="btn btn-danger w-25">SELL</button>
+            {% endif %}
+        </div>
     </form>
 
     <!-- Include Bootstrap JavaScript (optional) -->
@@ -81,70 +89,100 @@
             document.getElementById('total_crypto').innerText = quantity;
             document.getElementById('total_usd').innerText = Math.round(price * 100) / 100;
             document.getElementById('total_amount').innerText = Math.round(totalAmount * 100) / 100;
+        }
 
-            console.log(quantity, "*", price, "=", totalAmount);
+        function getExchangeData(crypto_symbol, fiat_symbol) {
+            if (crypto_symbol === null || fiat_symbol === null) {
+                alert(`Crypto Symbol or Fiat Symbol is Null.`);
+            } else {
+                url = `/get-price/${crypto_symbol}/${fiat_symbol}/`;
+                fetch(url, {
+                    method: "GET",
+                })
+                    .then(data => data.json())
+                    .then(res => {
+                        document.getElementById("fiat_price").value = res.price;
+
+                        // Additional logic to handle to_currency_amount value
+                        var to_currency_amount = parseFloat(document.getElementById("fiat_price").value);
+                        var from_currency_qty = parseInt(document.getElementById("quantity").value);
+                        var total_amount = from_currency_qty * to_currency_amount;
+
+                        dynamicChange(from_currency_qty, to_currency_amount, total_amount);
+
+                        // Create transactionData here
+                        var user = "{{ request.user }}";
+                        var transaction_type = "{{ action }}";
+                        var transaction_status = "SUCCESSED";
+                        var from_currency = crypto_symbol;
+                        var from_currency_qty = from_currency_qty;
+                        var to_currency = fiat_symbol;
+
+                        let transactionData = {
+                            user: user,
+                            transaction_type: transaction_type,
+                            transaction_status: transaction_status,
+                            from_currency: from_currency,
+                            from_currency_qty: from_currency_qty,
+                            to_currency: to_currency,
+                            to_currency_amount: to_currency_amount,
+                            total_amount: total_amount,
+                        };
+
+                        console.log(transactionData);
+                        // transactionData = JSON.stringify(transactionData)
+                        let buyBtn = document.getElementById("buyBtn");
+                        buyBtn.onclick = function () {
+                            url = `{% url 'transaction_view' %}`
+                            // url = `${url.split("+")[0]}${transactionData}`
+                            // console.log(`${url}`,"=======00000000", typeof(transactionData))
+
+                            fetch(url, {
+                                method: "POST",
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    data: transactionData
+                                })
+                            }).then(window.location.href = `/transaction/?data=${JSON.stringify(transactionData)}`)
+                                .catch(err => console.log(`ERROR ==> ${err}`))
+
+                            alert(JSON.stringify(transactionData));
+                            // window.location.href = url;
+                        }
+
+                    })
+                    .catch(error => console.log("ERROR: ", error));
+            }
         }
 
         document.getElementById('quantity').addEventListener('change', function () {
-
             var crypto = document.getElementById("crypto");
             var fiat = document.getElementById("fiat");
-
-            console.log(crypto.value, "=======", fiat.value)
-            getExchangeData(crypto_symbol = crypto.value, fiat_symbol = fiat.value)
-
+            getExchangeData(crypto.value, fiat.value);
         });
 
         document.getElementById('crypto').addEventListener('change', function () {
-
             var crypto = document.getElementById("crypto");
             var fiat = document.getElementById("fiat");
-
-            console.log(crypto.value, "=======", fiat.value)
-            getExchangeData(crypto_symbol = crypto.value, fiat_symbol = fiat.value)
-
+            getExchangeData(crypto.value, fiat.value);
         });
 
         document.getElementById('fiat').addEventListener('change', function () {
-
             var crypto = document.getElementById("crypto");
             var fiat = document.getElementById("fiat");
-
-            console.log(crypto.value, "=======", fiat.value)
-            getExchangeData(crypto_symbol = crypto.value, fiat_symbol = fiat.value)
-
+            getExchangeData(crypto.value, fiat.value);
         });
 
-        function getExchangeData(crypto_symbol = null, fiat_symbol = null) {
-
-            if (crypto_symbol === null || fiat_symbol === null) {
-                alert(`Crypto Symbol or Fiat Symbol is Null.`)
-            }
-            else {
-                // alert(`${crypto_symbol}, ${fiat_symbol}, ${typeof (crypto_symbol)}`)
-                url = `/get-price/${crypto_symbol}/${fiat_symbol}/`
-                fetch(url, {
-                    method: "GET",
-                }).then(data => (data.json())).then(res => setDefaultData(res))
-                    .catch(error => console.log("ERROR: ", error))
-            }
-        }
-        var selectedCrypto = '{{selected_crypto.symbol}}'
-        getExchangeData(crypto_symbol = selectedCrypto, fiat_symbol = "USD")
+        // Initial fetch when the page loads
+        var selectedCrypto = '{{ selected_crypto.symbol }}';
+        getExchangeData(selectedCrypto, 'USD');
 
 
-        function setDefaultData(res) {
-
-            document.getElementById("fiat_price").value = res.price
-            // Initial calculation when the page loads
-            var initialQuantity = parseInt(document.getElementById("quantity").value);
-            var initialprice = parseFloat(res.price);
-            var initialTotalAmount = initialQuantity * initialprice;
-
-            dynamicChange(initialQuantity, initialprice, initialTotalAmount);
-        }
-
+        console.log("EEEEEEE")
     </script>
+
 </body>
 
 </html>

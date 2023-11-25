@@ -51,12 +51,7 @@ class SignUpForm(forms.Form):
         max_length=100,
         widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "Confirm Password"}),
     )
-    id_document = forms.FileField(
-        required=True,
-        validators=[validate_file_extension],
-        widget=forms.FileInput(attrs={'class': 'form-control'})
-    )
-
+    
     def clean_username(self):
         username = self.cleaned_data.get("username")
         if User.objects.filter(username=username).exists():
@@ -78,7 +73,3 @@ class SignUpForm(forms.Form):
             self.add_error("confirm_password", "Confirm Password does not match Password.")
 
         return cleaned_data
-
-class CryptoSelectionForm(forms.Form):
-    crypto_choices = [(crypto.id, crypto.name) for crypto in CryptoCurrency.objects.all()]
-    crypto = forms.ChoiceField(choices=crypto_choices, widget=forms.Select(attrs={'class': 'form-select'}))

@@ -4,7 +4,7 @@ from . import views
 urlpatterns = [
     path("", views.PortfolioView.as_view(), name="portfolio_view"),
     path(
-        "exchange/<str:selected_crypto>/",
+        "exchange/<str:selected_crypto>/<str:action>/",
         views.ExchangeView.as_view(),
         name="exchange_view",
     ),
@@ -16,5 +16,6 @@ urlpatterns = [
     path("login", views.LoginView.as_view(), name="login_view"),
     path("signup", views.SignUpView.as_view(), name="signup_view"),
     path("logout", views.LogoutView.as_view(), name="logout_view"),
-    path('crypto/', views.CryptoSelectionView.as_view(), name='crypto_selection'),
+    path("transaction/", views.TransactionView.as_view(), name="transaction_view"),
+    path("transaction-histories/", views.TransactionHistoryView.as_view(), name="transaction_histories_view"),
 ]
