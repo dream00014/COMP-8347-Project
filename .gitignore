@@ -2,3 +2,5 @@
 **/*db.sqlite3
 **/*migrations
 **/*venv
+**/*.idea
+**/*.DS_Store
