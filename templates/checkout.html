@@ -1,10 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout Success</title>
+    <!-- Add your CSS styles or link to external stylesheet if needed -->
+    <style>
+        /* Example CSS styles for the success message */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+        }
+
+        .success-message {
+            margin: 100px auto;
+            padding: 20px;
+            background-color: #dff0d8;
+            border: 1px solid #3c763d;
+            color: #3c763d;
+            border-radius: 5px;
+            width: 50%;
+        }
+
+        .success-message h2 {
+            margin-top: 0;
+        }
+
+        go-back-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #337ab7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .go-back-button:hover {
+            background-color: #286090;
+        }
+
+    </style>
 </head>
+
 <body>
-$END$
+    <div class="success-message">
+        <h2>Payment Successful!</h2>
+        <p>Thank you for your purchase.</p>
+        <!-- Additional information or actions can be added here -->
+        <button class="go-back-button" onclick="goBack()">Go Back</button>
+    </div>
 </body>
+<script>
+    function goBack() {
+        window.location.href = 'http://127.0.0.1:8000/';
+    }
+</script>
 </html>

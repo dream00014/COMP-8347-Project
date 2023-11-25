@@ -12,6 +12,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.hashers import make_password
 from .forms import CryptoSelectionForm
 from .models import CryptoCurrency
+import stripe
+from django.conf import settings
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views import View
+from django.http import HttpResponseRedirect
 
 
 
@@ -140,6 +146,10 @@ class LogoutView(LoginRequiredMixin, View):
         return redirect("login_view")
 
 
+def logoutView():
+    return {'abc':'bbc'}
+
+
 class CryptoSelectionView(View):
     def get(self, request):
         form = CryptoSelectionForm()
@@ -153,4 +163,27 @@ class CryptoSelectionView(View):
             return render(request, 'crypto_details.html', {'form': form, 'selected_crypto': selected_crypto})
         return render(request, 'crypto_selection.html', {'form': form})
 
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
+#existing payment view
+class PaymentView(View):
+    def post(self, request):
+        intent = stripe.PaymentIntent.create(
+            amount= int(float(request.POST['total_price'])),
+            currency='usd',
+            automatic_payment_methods={
+                'enabled': True,
+            },
+        )
+
+        #store data into temp transactions table
+        print(intent['client_secret'])
+
+        return render(request, 'payment.html', {'form': intent['client_secret'], 'crypto_type' : request.POST['crypto'], 'crypto_qty' : request.POST['quantity']})
+
+
+
+
+class checkoutSuccess(View):
+    def get(self, request):
+        return render(request, 'checkout.html')

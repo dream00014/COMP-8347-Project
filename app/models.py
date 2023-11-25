@@ -1,7 +1,5 @@
 from django.db import models
 
-# Create your models here.
-
 
 class CryptoCurrency(models.Model):
     name = models.CharField(max_length=100, null=False, blank=False)
@@ -32,14 +30,4 @@ class CurrencyExchangeInfo(models.Model):
     def __str__(self):
         return self.crypto_currency.name
 
-#sp
-# class CryptoDetails(models.Model):
-#     crypto = models.ForeignKey(
-#         CryptoCurrency, on_delete=models.CASCADE, null=False, blank=False
-#     )
-#     description = models.TextField()
-#     exchange_rate = models.DecimalField(max_digits=15, decimal_places=8)
-#
-#     def __str__(self):
-#         return self.crypto
 
