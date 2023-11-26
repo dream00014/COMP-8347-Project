@@ -14,12 +14,12 @@
 <body>
 
 
-    <h1 class="mb-4 text-center">Crypto Exchange</h1>
+    <h1 class="mb-4 text-center">Forex Exchange</h1>
     {% for i in data %}
     {{i.crypto_currency.symbol}}
     {% endfor %}
 
-    <form class="col-sm-4" style="margin-left: 33%;" action="/payment/" method="post">
+    <form class="col-sm-4" style="margin-left: 33%;" action="/sell/" method="post">
         {% csrf_token %}
 
         <div class="form-row">
@@ -69,7 +69,7 @@
             <p>Total: <span id="total_crypto">{{symbol}}</span> * <span id="total_usd">{{fiat_value}}</span> =<span
                     id="total_amount"></span></p>
             <input type="hidden" name="total_price" id="total_price" >
-        </div> <button type="submit" class="btn btn-primary">Exchange</button>
+        </div> <button type="submit" class="btn btn-primary">Sell</button>
     </form>
 
     <!-- Include Bootstrap JavaScript (optional) -->

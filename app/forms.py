@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from .models import CryptoCurrency
 import os
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from .models import UserProfile
 
 # Custom validator for file upload
 def validate_file_extension(value):
@@ -82,3 +85,33 @@ class SignUpForm(forms.Form):
 class CryptoSelectionForm(forms.Form):
     crypto_choices = [(crypto.id, crypto.name) for crypto in CryptoCurrency.objects.all()]
     crypto = forms.ChoiceField(choices=crypto_choices, widget=forms.Select(attrs={'class': 'form-select'}))
+
+
+
+class SignUpForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    id_document = forms.ImageField(widget=forms.FileInput(attrs={'class': 'form-control'}), validators=[validate_file_extension], required=False)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password', 'confirm_password')
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if password and confirm_password and password != confirm_password:
+            raise ValidationError("Passwords do not match.")
+
+    def save(self, commit=True):
+        user = super(SignUpForm, self).save(commit=False)
+        user.set_password(self.cleaned_data["password"])
+        if commit:
+            user.save()
+        return user

@@ -22,11 +22,13 @@
         <div class="container">
             <!-- Logo on the left side -->
             <a class="navbar-brand" href="#">
-                <img src="your-logo.png" alt="TradingBeez" height="30">
+                <img src="templates/your-logo.png" alt="TradingBeez" height="30">
             </a>
 
             <!-- Login and Sign Up buttons on the right side -->
             <div class="ml-auto">
+                <a href="{% url 'user_wallet' %}"><button class="btn btn-outline-primary ml-2">Wallet</button></a>
+                <a href="{% url 'user_transactions' %}"><button class="btn btn-outline-primary ml-2">Transactions</button></a>
                 <a href="{% url 'crypto_selection' %}"><button class="btn btn-outline-primary ml-2">Crypto Details</button></a>
                 {% if request.user.is_authenticated %}
                 <button class="btn">{{request.user}}</button>
@@ -72,7 +74,9 @@
                     <td>{{i.fiat_currency.symbol}}</td>
                     <td>{{i.price}}</td>
                     <td><a href="{% url 'exchange_view' i.crypto_currency.symbol %}"><button
-                                class="btn btn-sm btn-primary">Exchange</button></a></td>
+                                class="btn btn-sm btn-primary">Buying</button></a></td>
+                    <td><a href="{% url 'forex_exchange' i.crypto_currency.symbol %}">
+                        <button class="btn btn-sm btn-success">Selling</button></a></td>
                 </tr>
                 {% endfor %}
 

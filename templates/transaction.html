@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Transactions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+     <div class="container mt-5">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-primary text-white text-center">
+                <h2 class="mb-0">My Transactions</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                     <div class="container mt-4">
+
+        <table class="table table-bordered table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>Crypto-Name</th>
+                    <th>Currency Amount Paid Or Received</th>
+                    <th>Sold or Purchased Crypto Amount</th>
+                    <th>Transaction Type</th>
+                    <th>Transaction Status</th>
+                    <th>Transaction-Time/Date</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for i in data %}
+            <tr>
+            <td>{{ i.crypto_currency.name }}</td>
+            <td>{{ i.amount_paid }} {{ i.amount_currency.symbol}}</td>
+            <td>{{ i.crypto_amount }} </td>
+            <td>{% if i.transactions_type == True %} Bought {% elif i.status == False %} Sold {% endif %}</td>
+            <td>{% if i.status == True %} Complete {% elif i.status == False %} Incomplete {% endif %}</td>
+            <td>{{ i.date_time }} </td>
+            </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
