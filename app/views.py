@@ -17,7 +17,7 @@ from django.urls import reverse_lazy
 from .forms import *
 
 
-import stripe
+
 from django.conf import settings
 from django.http import JsonResponse
 from django.urls import reverse_lazy
@@ -131,7 +131,7 @@ class TransactionView(LoginRequiredMixin, View):
 
         try:
             try:
-                user_obj = User.objects.get(username=data_dict["user"])
+                user_obj = CustomUser.objects.get(username=data_dict["user"])
             except Exception as e:
                 data = {"msg": "Transaction Failed", "error": e}
                 return JsonResponse(data)

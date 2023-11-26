@@ -70,10 +70,10 @@ class TransactionHistory(models.Model):
         max_length=100, choices=TRANSACTION_CURRENCY, null=True, blank=True
     )
     to_currency_amount = models.DecimalField(
-        max_digits=10, decimal_places=3, null=False, blank=False
+        max_digits=100, decimal_places=3, null=False, blank=False
     )
     total_amount = models.DecimalField(
-        max_digits=10, decimal_places=3, null=False, blank=False
+        max_digits=100, decimal_places=3, null=False, blank=False
     )
 
     def __str__(self):
