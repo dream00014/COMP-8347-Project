@@ -24,3 +24,51 @@ class CurrencyExchangeInfoAdmin(admin.ModelAdmin):
 class TransactionHistoryAdmin(admin.ModelAdmin):
     list_display = ["transaction_id", "user", "transaction_type", "transaction_status"]
     list_filter = ["transaction_id", "user", "transaction_type", "transaction_status"]
+
+
+@admin.register(CustomUser)
+class CustomUserAdmin(admin.ModelAdmin):
+    model = CustomUser
+    list_display = [
+        "username",
+        "email",
+        "first_name",
+        "last_name",
+        "is_staff",
+    ]
+    fieldsets = (
+        (None, {"fields": ("username", "password")}),
+        (
+            "Personal Info",
+            {"fields": ("first_name", "last_name", "email")},
+        ),
+        (
+            "Permissions",
+            {
+                "fields": (
+                    "is_active",
+                    "is_staff",
+                    "is_superuser",
+                    "groups",
+                    "user_permissions",
+                )
+            },
+        ),
+        ("Important dates", {"fields": ("last_login", "date_joined")}),
+    )
+    add_fieldsets = (
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": (
+                    "username",
+                    "email",
+                    "password1",
+                    "password2",
+                    "is_staff",
+                    "is_superuser",
+                ),
+            },
+        ),
+    )

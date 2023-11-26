@@ -12,13 +12,22 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.hashers import make_password
 from .models import CryptoCurrency
 import json
+from django.views.generic.edit import UpdateView
+from django.urls import reverse_lazy
+from .forms import *
+
+
+import stripe
+from django.conf import settings
+from django.http import JsonResponse
+from django.urls import reverse_lazy
+from django.views.generic import TemplateView
 
 
 class PortfolioView(LoginRequiredMixin, View):
-    login_url = "/login"
+    login_url = "/login/"
 
     def get(self, request):
-        print(request.user)
         filter_by = request.GET.get("ranking_filter")
         form = RankingFilterForm(request.GET)
 
@@ -33,18 +42,13 @@ class PortfolioView(LoginRequiredMixin, View):
         else:
             data = CurrencyExchangeInfo.objects.filter(fiat_currency__symbol="USD")
 
-        # print(data)
-        # if data:
-        #     print("YES")
-        # else:
-        #     print("NO")
         context = {"form": form, "data": data}
 
         return render(request, "portfolio.html", context=context)
 
 
 class ExchangeView(LoginRequiredMixin, View):
-    login_url = "/login"
+    login_url = "/login/"
 
     def get(self, request, selected_crypto=None, action=None):
         if not selected_crypto:
@@ -57,9 +61,7 @@ class ExchangeView(LoginRequiredMixin, View):
 
         crypto_data = CryptoCurrency.objects.all()
         fiat_data = FiatCurrency.objects.all()
-        print(selected_crypto, "=========>>>>>>")
         selected_crypto = CryptoCurrency.objects.filter(symbol=selected_crypto).first()
-        print(selected_crypto, "-----------")
         context = {
             "crypto_data": crypto_data,
             "fiat_data": fiat_data,
@@ -72,7 +74,7 @@ class ExchangeView(LoginRequiredMixin, View):
 
 
 class GetExchangePrice(LoginRequiredMixin, View):
-    login_url = "/login"
+    login_url = "/login/"
 
     def get(self, request, crypto_symbol, fiat_symbol):
         data = CurrencyExchangeInfo.objects.filter(
@@ -98,66 +100,34 @@ class LoginView(View):
             username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password")
 
-            print(username, password)
             user = authenticate(username=username, password=password)
 
-            print("USER===========", user)
             if user:
                 login(request, user)
                 return redirect("portfolio_view")
             else:
-                # Add the form to the context if login fails
                 context = {"form": form}
                 return render(request, "login.html", context=context)
 
-        # If the form is not valid, render the form with errors
         context = {"form": form}
         return render(request, "login.html", context=context)
 
 
-class SignUpView(View):
-    def get(self, request):
-        form = SignUpForm(request.GET)
-
-        context = {"form": form}
-        return render(request, "signup.html", context=context)
-
-    def post(self, request):
-        form = SignUpForm(request.POST)
-
-        if form.is_valid():
-            username = form.cleaned_data.get("username")
-            password = form.cleaned_data.get("password")
-
-            hash_password = make_password(password)
-            print(username, hash_password)
-            user = User(username=username, password=hash_password)
-            user.save()
-            return redirect("portfolio_view")
-
-        # If the form is not valid, render the form with errors
-        context = {"form": form}
-        return render(request, "signup.html", context=context)
-
-
 class LogoutView(LoginRequiredMixin, View):
-    login_url = "/login"
+    login_url = "/login/"
 
     def get(self, request):
-        print(request.user, "========1")
         logout(request)
-        print(request.user, "=======2")
         return redirect("login_view")
 
 
 class TransactionView(LoginRequiredMixin, View):
-    login_url = "/login"
+    login_url = "/login/"
 
     def get(self, request):
         data = request.GET.get("data", "")
         unescaped_string = data.encode().decode("unicode_escape")
         data_dict = json.loads(unescaped_string)
-        print(data_dict, "=============", type(data_dict))
 
         try:
             try:
@@ -165,10 +135,6 @@ class TransactionView(LoginRequiredMixin, View):
             except Exception as e:
                 data = {"msg": "Transaction Failed", "error": e}
                 return JsonResponse(data)
-            # Parse the JSON string into a dictionary
-            # data_dict = json.loads(data)
-
-            # Create a new transaction instance
             transaction = TransactionHistory(
                 user=user_obj,
                 transaction_type=data_dict["transaction_type"],
@@ -180,18 +146,17 @@ class TransactionView(LoginRequiredMixin, View):
                 total_amount=data_dict["total_amount"],
             )
 
-            # Save the transaction to the database
             transaction.save()
 
         except json.JSONDecodeError as e:
             print(f"Error decoding JSON: {e}")
+            raise ValidationError(f"Error decoding JSON: {e}")
 
         return redirect("/")
-        # return render(request, "portfolio.html")
 
 
 class TransactionHistoryView(LoginRequiredMixin, View):
-    login_url = "/login"
+    login_url = "/login/"
 
     def get(self, request):
         transaction_histories = TransactionHistory.objects.filter(
@@ -199,3 +164,45 @@ class TransactionHistoryView(LoginRequiredMixin, View):
         ).all()
         context = {"transaction_histories": transaction_histories}
         return render(request, "transaction_history.html", context=context)
+
+
+class SignUpView(View):
+    def get(self, request):
+        form = SignUpForm()
+        return render(request, "signup.html", {"form": form})
+
+    def post(self, request):
+        form = SignUpForm(request.POST, request.FILES)
+        if form.is_valid():
+            user = form.save()
+            return redirect("login_view")
+        else:
+            return render(request, "signup.html", {"form": form})
+
+
+class ProfileView(LoginRequiredMixin, UpdateView):
+    model = CustomUser
+    form_class = UserProfileForm
+    template_name = "user_dashboard.html"
+    success_url = reverse_lazy("profile_view")
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        return response
+
+
+class CustomUserUpdateView(LoginRequiredMixin, UpdateView):
+    model = CustomUser
+    form_class = CustomUserChangeForm
+    template_name = "profile_edit.html"
+    success_url = reverse_lazy("profile_view")
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        return response
