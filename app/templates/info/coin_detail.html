@@ -1,0 +1,234 @@
+<!-- coin_detail.html -->
+{% extends 'base/base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ coin_data.name }} Detail</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .coin-info img {
+            max-width: 100px;
+            border-radius: 5px;
+            margin-right: 20px;
+        }
+
+        .links a, .tickers div, .market-info, .market-item, .market-item ul {
+            margin-bottom: 20px;
+        }
+
+        .market-info {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .market-item {
+            flex: 1;
+            margin-right: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .market-item h2, .market-item p {
+            margin-bottom: 10px;
+        }
+
+        .market-item ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .market-item li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+{% block content %}
+    <h1>{{ coin_data.name }} Detail</h1>
+
+    <div class="coin-info">
+        <img src="{{ coin_data.image.large }}" alt="{{ coin_data.name }} Logo">
+
+        <p>ID: {{ coin_data.id }}</p>
+        <p>Symbol: {{ coin_data.symbol }}</p>
+        <p>Hashing Algorithm: {{ coin_data.hashing_algorithm }}</p>
+
+        <h2>Links:</h2>
+        <div class="links">
+            {% for homepage in coin_data.links.homepage %}
+                {% if homepage %}
+                    <a href="{{ homepage }}" target="_blank">{{ homepage }}</a>
+                {% endif %}
+            {% endfor %}
+
+            <h3>Blockchain Sites:</h3>
+            {% for blockchain_site in coin_data.links.blockchain_site %}
+                {% if blockchain_site %}
+                    <a href="{{ blockchain_site }}" target="_blank">{{ blockchain_site }}</a>
+                {% endif %}
+            {% endfor %}
+
+            <h3>Social Media and Chat:</h3>
+            {% for chat_url in coin_data.links.chat_url %}
+                {% if chat_url %}
+                    <a href="{{ chat_url }}" target="_blank">{{ chat_url }}</a>
+                {% endif %}
+            {% endfor %}
+
+            <h3>Repositories:</h3>
+            {% for github_repo in coin_data.links.repos_url.github %}
+                {% if github_repo %}
+                    <a href="{{ github_repo }}" target="_blank">{{ github_repo }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="tickers">
+        <h2>Tickers:</h2>
+        {% for ticker in coin_data.tickers %}
+            <div>
+                <p><strong>Base:</strong> {{ ticker.base }}</p>
+                <p><strong>Target:</strong> {{ ticker.target }}</p>
+                <p><strong>Market:</strong> {{ ticker.market.name }}</p>
+                <p><strong>Last Traded Value:</strong> {{ ticker.last }} {{ ticker.target }}</p>
+                <p><strong>Volume:</strong> {{ ticker.volume }} {{ ticker.target }}</p>
+                <p><strong>Trade URL:</strong> <a href="{{ ticker.trade_url }}" target="_blank">{{ ticker.trade_url }}</a></p>
+                <hr>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="market-data">
+        <div class="market-info">
+            <div class="market-item">
+                <h3>Current Price:</h3>
+                <ul>
+                    {% for currency, price in coin_data.market_data.current_price.items %}
+                        <li>{{ currency }}: {{ price }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="market-item">
+                <h3>24-Hour High:</h3>
+                <ul>
+                    {% for currency, high_24h_price in coin_data.market_data.high_24h.items %}
+                        <li>{{ currency }}: {{ high_24h_price }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="market-item">
+                <h3>Price Change (24h):</h3>
+                <ul>
+                    {% for currency, price_change in coin_data.market_data.price_change_24h_in_currency.items %}
+                        <li>{{ currency }}: {{ price_change }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <h2>All-Time High (ATH):</h2>
+        <div class="market-info">
+            <div class="market-item">
+                <ul>
+                    {% for currency, ath_price in coin_data.market_data.ath.items %}
+                        <li>{{ currency }}: {{ ath_price }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="market-item">
+                <p><strong>ATH Change Percentage:</strong></p>
+                <ul>
+                    {% for currency, ath_change_percentage in coin_data.market_data.ath_change_percentage.items %}
+                        <li>{{ currency }}: {{ ath_change_percentage }}%</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="market-item">
+                <p><strong>ATH Date:</strong></p>
+                <ul>
+                    {% for currency, ath_date in coin_data.market_data.ath_date.items %}
+                        <li>{{ currency }}: {{ ath_date }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <h2>All-Time Low (ATL):</h2>
+        <div class="market-info">
+            <div class="market-item">
+                <ul>
+                    {% for currency, atl_price in coin_data.market_data.atl.items %}
+                        <li>{{ currency }}: {{ atl_price }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="market-item">
+                <p><strong>ATL Change Percentage:</strong></p>
+                <ul>
+                    {% for currency, atl_change_percentage in coin_data.market_data.atl_change_percentage.items %}
+                        <li>{{ currency }}: {{ atl_change_percentage }}%</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="market-item">
+                <p><strong>ATL Date:</strong></p>
+                <ul>
+                    {% for currency, atl_date in coin_data.market_data.atl_date.items %}
+                        <li>{{ currency }}: {{ atl_date }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="market-info">
+            <div class="market-item">
+                <h2>Market Cap:</h2>
+                <ul>
+                    {% for currency, market_cap in coin_data.market_data.market_cap.items %}
+                        <li>{{ currency }}: {{ market_cap }}</li>
+                    {% endfor %}
+                </ul>
+                <p><strong>Market Cap Rank:</strong> {{ coin_data.market_data.market_cap_rank }}</p>
+            </div>
+
+            <div class="market-item">
+                <h2>Fully Diluted Valuation:</h2>
+                <ul>
+                    {% for currency, fdv_value in coin_data.market_data.fully_diluted_valuation.items %}
+                        <li>{{ currency }}: {{ fdv_value }}</li>
+                    {% endfor %}
+                </ul>
+                <p><strong>Market Cap FDV Ratio:</strong> {{ coin_data.market_data.market_cap_fdv_ratio }}</p>
+            </div>
+
+            <div class="market-item">
+                <h2>Total Volume:</h2>
+                <ul>
+                    {% for currency, volume in coin_data.market_data.total_volume.items %}
+                        <li>{{ currency }}: {{ volume }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <a href="{% url 'coinlist' %}">Back to Coin List</a>
+{% endblock %}
+</body>
+</html>

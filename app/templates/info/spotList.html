@@ -1,0 +1,65 @@
+{% extends 'base/base.html' %}
+{% block content %}
+    <script>
+        function sortTable(columnIndex) {
+            let table, rows, switching, i, x, y, shouldSwitch;
+            table = document.getElementById("sortable-table");
+            switching = true;
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[columnIndex];
+                    y = rows[i + 1].getElementsByTagName("TD")[columnIndex];
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                }
+            }
+        }
+    </script>
+
+    <div class="text-center my-3">
+        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#searchFormCollapse" aria-expanded="false" aria-controls="searchFormCollapse">
+            Toggle Search
+        </button>
+    </div>
+
+    <div class="collapse" id="searchFormCollapse">
+        <div class="card card-body">
+            <form method="get" action="" class="form-inline">
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-secondary">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <table id="sortable-table" class="table table-striped">
+        <tr>
+            <th onclick="sortTable(0)">Name</th>
+            <th onclick="sortTable(1)">Score</th>
+            <th onclick="sortTable(2)">Volume</th>
+            <th onclick="sortTable(3)">Liquidity</th>
+            <th onclick="sortTable(4)">Weekly Visit</th>
+            <th onclick="sortTable(5)">Markets</th>
+            <th onclick="sortTable(6)">Coins</th>
+        </tr>
+        {% for spot in spot_list %}
+            <tr>
+                <td><a href="{% url 'spot_detail' spot.id %}">{{ spot.name }}</a></td>
+                <td>{{ spot.score }}</td>
+                <td>{{ spot.volume }}</td>
+                <td>{{ spot.liquidity }}</td>
+                <td>{{ spot.weekly_visit }}</td>
+                <td>{{ spot.markets }}</td>
+                <td>{{ spot.coins }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
