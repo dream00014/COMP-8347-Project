@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Trading Beez{% endblock %}
 
@@ -12,18 +13,24 @@
     </div>
 
     <!-- Features Section -->
-    <div class="features-section">
+    <div class="features-section text-center">
         <div class="container">
             <div class="row">
+                <!-- Feature 1 -->
                 <div class="col-md-4 feature">
+                    <img src="{% static 'images/fast_transactions_icon.png' %}" alt="Fast Transactions" style="width: 100px; height: 100px;">
                     <h3>Fast Transactions</h3>
                     <p>Convert your cryptocurrency quickly and efficiently with our streamlined process.</p>
                 </div>
+                <!-- Feature 2 -->
                 <div class="col-md-4 feature">
+                    <img src="{% static 'images/secure_platform_icon.png' %}" alt="Secure Platform" style="width: 100px; height: 100px;">
                     <h3>Secure Platform</h3>
                     <p>Your security is our priority. Trade with confidence on our encrypted platform.</p>
                 </div>
+                <!-- Feature 3 -->
                 <div class="col-md-4 feature">
+                    <img src="{% static 'images/real_time_rates_icon.png' %}" alt="Real-Time Rates" style="width: 100px; height: 100px;">
                     <h3>Real-Time Rates</h3>
                     <p>Get the most up-to-date and competitive rates for your currency conversion.</p>
                 </div>
@@ -34,19 +41,23 @@
     <!-- Testimonial Section -->
     <div class="testimonial-section">
         <div class="container">
-            <h2 class="text-center">What Our Users Say</h2>
-            <div class="row">
-                <div class="col-md-4 testimonial">
-                    <p>"Trading Beez made it super easy for me to exchange my bitcoins into dollars. Fast and secure!"</p>
-                    <p>- Alex Smith</p>
-                </div>
-                <div class="col-md-4 testimonial">
-                    <p>"I always get the best rates here. The real-time updates are a game-changer."</p>
-                    <p>- Emily Johnson</p>
-                </div>
-                <div class="col-md-4 testimonial">
-                    <p>"As a beginner in crypto, I found Trading Beez to be very user-friendly and trustworthy."</p>
-                    <p>- Mark Davis</p>
+            <h2>What Our Users Say</h2>
+            <!-- Testimonial Carousel -->
+            <div id="testimonialCarousel" class="carousel slide" data-ride="carousel">
+                <!-- Carousel items -->
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <p>"Trading Beez made it super easy for me to exchange my bitcoins into dollars. Fast and secure!"</p>
+                        <p>- Sharukh Khan</p>
+                    </div>
+                    <div class="carousel-item">
+                        <p>"I always get the best rates here. The real-time updates are a game-changer."</p>
+                        <p>- Emily Johnson</p>
+                    </div>
+                    <div class="carousel-item">
+                        <p>"As a beginner in crypto, I found Trading Beez to be very user-friendly and trustworthy."</p>
+                        <p>- Mark Davis</p>
+                    </div>
                 </div>
             </div>
         </div>
