@@ -1,0 +1,82 @@
+{% extends 'base/base.html' %}
+{% block content %}`
+    <script>
+        function sortTable(columnIndex) {
+            let table, rows, switching, i, x, y, shouldSwitch;
+            table = document.getElementById("sortable-table");
+            switching = true;
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[columnIndex];
+                    y = rows[i + 1].getElementsByTagName("TD")[columnIndex];
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                }
+            }
+        }
+    </script>
+    {% if spot %}
+        <div class="container">
+            <div class="row">
+                <!-- 左侧列：名称、网址、用户分数 -->
+                <div class="col-md-4">
+                    <h3>{{ spot.name }}</h3>
+                    <p>Website: <a href="{{ spot.web_link }}">{{ spot.web_link }}</a></p>
+                    {% if user_score is not None %}
+                        <p>Your Score: {{ user_score }}</p>
+                    {% else %}
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <button type="submit" class="btn btn-primary">Submit Score</button>
+                        </form>
+                    {% endif %}
+                </div>
+
+                <!-- 右侧列：描述 -->
+                <div class="col-md-8">
+                    <h1>What is {{ spot.name }}</h1>
+                    <p>{{ spot.description }}</p>
+                </div>
+            </div>
+
+            <!-- 表格 -->
+            <div class="row">
+                <div class="col-12">
+                    <table id="sortable-table" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0)">Currency Name</th>
+                                <th onclick="sortTable(1)">Balance</th>
+                                <th onclick="sortTable(2)">Price</th>
+                                <th onclick="sortTable(3)">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for info in spot.reserve_spot.all %}
+                                <tr>
+                                    <td>{{ info.currency_type.name }}</td>
+                                    <td>{{ info.balance }}</td>
+                                    <td>{{ info.price }}</td>
+                                    <td>{{ info.value }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="text-center my-3">
+            <a href="{% url 'currency:spot_index' %}" class="btn btn-secondary mt-3">Back to List</a>
+        <div class="text-center my-3">
+    {% endif %}
+{% endblock %}

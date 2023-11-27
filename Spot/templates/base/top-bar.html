@@ -1,0 +1,69 @@
+{#<!DOCTYPE html>#}
+{#{% load static %}#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <link rel="stylesheet" href="{% static 'styles.css' %}">#}
+{#    <title>top</title>#}
+{#</head>#}
+{#<body>#}
+{#    <div id="top-bar">#}
+{#        <div id="top-symbol">#}
+{#            <img src="{% static 'image/tag.png' %}" width="150"/>#}
+{#            <img src="{% static 'image/eye-symbol.jpg' %}" width="50"/>#}
+{#        </div>#}
+{#        <div id="top-rightInfo">#}
+{##}
+{#            <div class="top-accountInfo"><a href="{% url 'currency:spot_index' %}" >Contact us</a></div>#}
+{#            <div class="top-accountInfo"><a href="{% url 'currency:spot_index' %}" >Support</a></div>#}
+{#            <div id="top-account">#}
+{#                {% if userInfo.is_authenticated %}#}
+{#                    <img id="account_img" src="{% static 'image/emptyAccount.png ' %}" width="10"/>#}
+{#                    <a href="{% url 'currency:spot_index' %}" class="top-accountInfo">Hello, {{ userInfo.username }}</a>#}
+{#                {% else %}#}
+{#                    <a href="{% url 'currency:spot_index' %}" class="top-accountInfo">Get start</a>#}
+{#                {% endif %}#}
+{#            </div>#}
+{#        </div>#}
+{##}
+{#    </div>#}
+{#</body>#}
+{#</html>#}
+
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <title>top</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg custom-top-bar">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <img src="{% static 'image/tag.png' %}" width="30" alt="Brand">
+            </a>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'currency:spot_index' %}">Contact us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'currency:spot_index' %}">Support</a>
+                    </li>
+                    <li class="nav-item">
+                        {% if userInfo.is_authenticated %}
+                            <a class="nav-link" href="{% url 'currency:spot_index' %}">
+                                Hello, {{ userInfo.username }}
+                            </a>
+                        {% else %}
+                            <a class="nav-link" href="{% url 'currency:spot_index' %}">Get start</a>
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</body>
+</html>

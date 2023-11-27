@@ -1,0 +1,129 @@
+#top-bar {
+    position: fixed;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: radial-gradient(circle, white, #007BFF);
+    z-index: 1000;
+}
+
+#top-account {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+
+#top-symbol {
+    display: flex;
+    align-items: center;
+}
+
+#account_img {
+    padding: 10px;
+}
+
+#top-rightInfo {
+    display: flex; /* 使用 Flexbox 布局 */
+    justify-content: flex-end; /* 元素水平排列在右侧 */
+    align-items: center; /* 垂直居中对齐 */
+    gap: 30px; /* 设置元素之间的水平间隔为 10px */
+}
+
+.top-accountInfo {
+    margin: 0; /* 移除默认的外边距 */
+    font-size: 10px;
+}
+
+/*Here is bottom style*/
+
+#bottom-bar {
+    background-color: #6b6b6b; /* 设置深灰色背景颜色 */
+    color: #fff; /* 设置文本颜色为白色 */
+    text-align: center; /* 文本水平居中对齐 */
+    padding: 0; /* 添加内边距 */
+
+    display: flex;
+    justify-content: center; /* 水平居中对齐元素 */
+    align-items: center; /* 垂直居中对齐元素 */
+}
+
+#bottom-bar p,
+#bottom-bar a,
+#bottom-bar button {
+    margin: 0 10px; /* 设置元素之间的水平间距 */
+}
+
+
+#back-to-top-button {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+#back-to-top-button:hover {
+    background-color: #0056b3;
+}
+
+/* 自定义样式 */
+.navbar {
+    background: radial-gradient(circle, white, #007BFF);
+}
+
+.nav-link {
+    font-size: 14px;
+}
+
+/* CSS for Top-Bar */
+.custom-top-bar {
+    bbackground-color: #007BFF; /* 蓝色背景 */
+    color: white; /* 白色文本 */
+}
+
+.custom-top-bar .navbar-brand, .custom-top-bar .nav-link {
+    color: white; /* 白色链接 */
+}
+
+.custom-bottom-bar {
+    background-color: #343A40; /* 深灰色背景 */
+    color: white; /* 白色文本 */
+}
+
+/*spot list style*/
+
+#sortable-table {
+    margin-left: auto;
+    margin-right: auto;
+    width: 960px; /* 设置表格宽度 */
+    border-collapse: collapse; /* 确保分隔线不重复 */
+}
+
+#sortable-table th, #sortable-table td {
+    border: 1px solid #ddd; /* 给单元格添加边框 */
+    padding: 8px; /* 添加一些内边距 */
+}
+
+#sortable-table tr:nth-child(even) {
+    background-color: #f2f2f2; /* 可选：为表格的偶数行设置背景色 */
+}
+
+#sortable-table tr:hover {
+    background-color: #ddd; /* 可选：鼠标悬停时行的背景色 */
+}
+
+#sortable-table th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #5e84ff; /* 可选：为标题行设置背景色 */
+    color: white; /* 标题行文字颜色 */
+}
